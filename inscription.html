@@ -285,7 +285,7 @@
       } else if (err.code === 'auth/weak-password') {
         errorBox.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
       } else {
-        errorBox.textContent = "Une erreur est survenue. Vérifiez vos informations.";
+        errorBox.textContent = "Erreur technique : " + (err.code || '') + " — " + (err.message || err);
       }
       errorBox.style.display = 'block';
     }
