@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ressources — LFAKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F;
+    --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14);
+    --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
+  .wrap { max-width:1200px; margin:0 auto; padding:0 24px; }
+  header { background: #fff; border-bottom: 1px solid var(--line); height: 80px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:18px; color:var(--ink); }
+  .nav-cta { background: var(--ink); color:#fff; padding:8px 15px; border-radius:5px; font-size:12px; border:none; cursor:pointer; text-decoration: none;}
+  
+  .page-hero { background: var(--ink-deep); color: #fff; padding: 40px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 10px; }
+  #status-msg { color: #FFD700; font-weight: bold; margin-top: 10px; display: none; }
+
+  .cycle-title { font-family: var(--serif); color: var(--ink); margin: 40px 0 15px; border-bottom: 2px solid var(--brass); display: inline-block; padding-bottom: 5px; }
+  details.level { background: #fff; border: 1px solid var(--line); margin-bottom: 15px; border-radius: 8px; }
+  details.level summary { padding: 20px; cursor: pointer; font-family: var(--serif); font-size: 20px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+  .level-content { padding: 10px 20px 25px; background: #fafafa; border-top: 1px solid var(--line); }
+
+  details.subject { background: #fff; border: 1px solid var(--line); margin-top: 12px; border-radius: 6px; }
+  details.subject summary { padding: 12px; font-weight: 600; font-size: 16px; list-style: none; display: flex; justify-content: space-between; color: var(--ink); }
+
+  .subject-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 15px; }
+  .doc-col { background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #eee; }
+  .doc-col h5 { font-size: 11px; text-transform: uppercase; color: var(--brass); margin-bottom: 10px; border-bottom: 1px solid var(--paper); padding-bottom: 5px; }
+  
+  .doc-list { list-style: none; }
+  .doc-list li { background: var(--paper-warm); padding: 10px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #e0ddd5; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  
+  .add-btn { margin-top: 10px; font-size: 11px; font-weight: 700; color: #fff; background: var(--ink); border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; }
+  .add-btn:hover { opacity: 0.9; }
+  .submit-btn { background: var(--brass); color: #fff; border: none; padding: 5px 8px; border-radius: 3px; font-size: 10px; cursor: pointer; }
+  .delete-btn { color: #d9534f; cursor: pointer; border: none; background: none; font-weight: bold; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<header><div class="wrap nav-row"><div class="brand-name">LFAKM - Ressources</div><nav><a href="#" id="auth-link" class="nav-cta">Déconnexion</a></nav></div></header>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>Espace Pédagogique</h1>
+    <p id="session-info">Identification en cours...</p>
+    <div id="status-msg">Envoi du fichier vers le serveur... patientez.</div>
+  </div>
+</section>
+
+<main class="wrap" id="main-content"></main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const classes = [
+    { id: "quatrieme", name: "Classe de Quatrième", mats: ["Mathématiques", "Sciences Physiques", "Français", "Anglais", "SVT", "Histoire-Géo"] },
+    { id: "troisieme", name: "Classe de Troisième", mats: ["Mathématiques", "Sciences Physiques", "Français", "Anglais", "SVT", "Histoire-Géo"] },
+    { id: "seconde-serie-s2a", name: "Seconde S2A", mats: ["Mathématiques", "Sciences Physiques", "SVT", "Français", "Anglais", "Histoire-Géo"] },
+    { id: "premiere-serie-s2a", name: "Première S2A", mats: ["Mathématiques", "Sciences Physiques", "SVT", "Français", "Anglais", "Histoire-Géo"] },
+    { id: "terminale-serie-s2a", name: "Terminale S2A", mats: ["Mathématiques", "Sciences Physiques", "SVT", "Philosophie", "Français"] }
+  ];
+
+  function slug(t) { return t.toLowerCase().trim().replace(/ /g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+
+  function render(profil) {
+    const main = document.getElementById('main-content');
+    main.innerHTML = '';
+    const role = profil?.role || 'visiteur';
+    const myMats = profil?.disciplines || [];
+    const myLevel = profil?.niveau;
+
+    classes.forEach(cls => {
+      if (role === 'eleve' && cls.id !== myLevel) return;
+
+      let subHtml = '';
+      cls.mats.forEach(mName => {
+        const mId = slug(mName);
+        const isMyMat = myMats.includes(mId);
+        if (role === 'professeur' && !isMyMat) return;
+
+        subHtml += `
+          <details class="subject">
+            <summary>${mName} <span>▼</span></summary>
+            <div class="subject-grid">
+              <div class="doc-col">
+                <h5>📚 Cours</h5>
+                <ul class="doc-list" id="l-${cls.id}-${mId}-cours"></ul>
+                ${role==='professeur' ? `<button class="add-btn" onclick="window.processUpload('${cls.id}','${mId}','cours')">＋ Publier un Cours</button>` : ''}
+              </div>
+              <div class="doc-col">
+                <h5>📝 Exercices / TD</h5>
+                <ul class="doc-list" id="l-${cls.id}-${mId}-td"></ul>
+                ${role==='professeur' ? `<button class="add-btn" onclick="window.processUpload('${cls.id}','${mId}','td')">＋ Publier un TD</button>` : ''}
+              </div>
+              <div class="doc-col">
+                <h5>🎯 Devoirs</h5>
+                <ul class="doc-list" id="l-${cls.id}-${mId}-dev"></ul>
+                ${role==='professeur' ? `<button class="add-btn" onclick="window.processUpload('${cls.id}','${mId}','dev')">＋ Donner un Devoir</button>` : ''}
+              </div>
+            </div>
+          </details>`;
+      });
+
+      if (subHtml !== '') {
+        const div = document.createElement('div');
+        div.innerHTML = `<h2 class="cycle-title">${cls.name}</h2><div class="level-content">${subHtml}</div>`;
+        main.appendChild(div);
+        cls.mats.forEach(mName => {
+          const mId = slug(mName);
+          setupList(cls.id, mId, 'cours', profil);
+          setupList(cls.id, mId, 'td', profil);
+          setupList(cls.id, mId, 'dev', profil);
+        });
+      }
+    });
+  }
+
+  function setupList(lvl, mat, type, profil) {
+    const ul = document.getElementById(`l-${lvl}-${mat}-${type}`);
+    if(!ul) return;
+    onSnapshot(query(collection(db, "ressources", `${lvl}-${mat}`, type), orderBy("date", "desc")), (snap) => {
+      ul.innerHTML = snap.empty ? '<li style="background:none;border:none;color:grey">Aucun fichier</li>' : '';
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="${d.url}" target="_blank">📄 ${d.titre}</a>`;
+        if (profil?.role === 'professeur' && profil.disciplines.includes(mat)) {
+          const del = document.createElement('button');
+          del.className = 'delete-btn'; del.innerHTML = '×';
+          del.onclick = () => { if(confirm('Supprimer ?')) deleteDoc(docSnap.ref); };
+          li.appendChild(del);
+        }
+        ul.appendChild(li);
+      });
+    });
+  }
+
+  // --- NOUVELLE FONCTION D'UPLOAD ---
+  window.processUpload = (lvl, mat, type) => {
+    // 1. On crée d'abord le sélecteur de fichier (Action locale)
+    const input = document.createElement('input');
+    input.type = 'file';
+    
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+
+      // 2. On demande le titre seulement après que le fichier soit choisi
+      const title = prompt("Entrez le titre de ce document :");
+      if (!title) return;
+
+      // 3. Affichage du chargement (Net)
+      const loader = document.getElementById('status-msg');
+      loader.style.display = 'block';
+
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', 'lfakm_ressources');
+
+      try {
+        const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+
+        if (data.secure_url) {
+          await addDoc(collection(db, "ressources", `${lvl}-${mat}`, type), {
+            titre: title,
+            url: data.secure_url,
+            date: serverTimestamp()
+          });
+          alert("✅ Fichier publié sur le net avec succès !");
+        }
+      } catch (err) {
+        alert("❌ Erreur lors de la publication.");
+      } finally {
+        loader.style.display = 'none';
+      }
+    };
+
+    input.click(); // Déclenche l'ouverture de vos fichiers locaux
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      const p = snap.data();
+      document.getElementById('session-info').textContent = `Enseignant : ${p.prenom} ${p.nom} (Physique-Chimie)`;
+      render(p);
+    } else {
+      window.location.href = 'identification.html';
+    }
+  });
+
+  document.getElementById('auth-link').onclick = () => signOut(auth).then(() => location.reload());
+</script>
+</body>
+</html>
