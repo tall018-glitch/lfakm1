@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ressources pédagogiques — LFAKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0;
+    --brass: #A8853F; --slate: #5B6472; --text: #1A1A1A;
+    --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', sans-serif; --shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: var(--text); background: var(--paper); line-height:1.55; }
+  
+  /* NAVIGATION */
+  header { position:sticky; top:0; z-index:1000; background:var(--paper); border-bottom:1px solid var(--line); height: 84px; display: flex; align-items: center; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; max-width:1180px; margin:0 auto; padding:0 24px; }
+  .brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink); }
+  .brand-mark { width:55px; height:45px; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-weight:800; color:var(--ink); font-size: 13px; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:18px; }
+
+  nav ul { display:flex; gap:18px; list-style:none; align-items: center; }
+  nav a { font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; transition: 0.3s; }
+  
+  /* ADMIN DROPDOWN */
+  .dropdown { position: relative; }
+  .dropdown-menu {
+    display: none; position: absolute; top: 100%; right: 0; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 6px; padding: 8px 0; min-width: 200px;
+    box-shadow: var(--shadow); list-style: none; z-index: 1000;
+  }
+  .dropdown.open .dropdown-menu { display: block; }
+  .dropdown-menu a { display: block; padding: 8px 20px; color: var(--ink); text-decoration: none; font-size: 13px; }
+  .dropdown-menu a:hover { background: var(--line); }
+
+  .nav-cta { background: var(--ink-deep); color:#fff !important; padding:10px 18px; font-size:12px; font-weight:600; border-radius:4px; text-decoration:none; }
+
+  /* DASHBOARD ADMIN (BOUTONS RAPIDES) */
+  .admin-quick-nav { display: none; justify-content: center; gap: 15px; margin: 20px auto; flex-wrap: wrap; max-width: 1180px; padding: 0 24px; }
+  .admin-btn { padding: 15px 25px; border-radius: 8px; text-decoration: none; color: white; font-weight: 700; font-size: 14px; flex: 1; min-width: 250px; text-align: center; transition: 0.3s; }
+  .btn-ine { background: var(--brass); }
+  .btn-gest { background: var(--ink-deep); }
+  .admin-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+  /* CONTENU */
+  .page-hero { background: var(--ink-deep); color:#EFE9DC; padding: 60px 0; text-align: center; }
+  .search-container { max-width: 600px; margin: -30px auto 40px; padding: 0 20px; position: relative; z-index: 10; }
+  #search-bar { width: 100%; padding: 18px 25px; border-radius: 100px; border: 1px solid var(--line); box-shadow: var(--shadow); font-size: 16px; outline: none; text-align: center; }
+
+  .cycle-header { border-left: 5px solid var(--brass); padding-left: 15px; margin: 40px 0 20px; font-family: var(--serif); color: var(--ink); font-size: 22px; }
+  details.level { background: #fff; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; }
+  details.level > summary { cursor: pointer; padding: 20px; font-family: var(--serif); font-size: 18px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; list-style: none; }
+  
+  .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+  .doc-list { list-style: none; font-size: 13.5px; }
+  .doc-list li { background: #fdfdfd; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid #eee; }
+  
+  .add-btn { display: none; margin-top: 10px; font-size: 11px; font-weight: 700; color: var(--ink); border: 1px dashed var(--brass); padding: 8px; border-radius: 4px; cursor: pointer; width: 100%; background: none; }
+  .delete-btn { color: #d9534f; font-weight: bold; cursor: pointer; border: none; background: none; margin-left: 10px; }
+
+  footer { background: var(--ink-deep); color: #B7BCC9; padding: 40px; text-align: center; font-size: 13px; margin-top: 60px; }
+
+  @media (max-width: 768px) {
+    .subject-grid { grid-template-columns: 1fr; }
+    .brand-name { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-row">
+    <a href="index.html" class="brand">
+      <div class="brand-mark">LFAKM</div>
+      <div class="brand-name">Lycée Franco Arabe de Keur Madiabel</div>
+    </a>
+    <nav>
+      <ul id="nav-menu">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="ressources.html" style="color:var(--brass)">Ressources</a></li>
+        <li class="dropdown" id="admin-dropdown" style="display: none;">
+          <a href="#" class="dropdown-toggle" style="color:var(--brass)">⚙️ Admin ▾</a>
+          <ul class="dropdown-menu">
+            <li><a href="admin-ine.html">Gestion des INE</a></li>
+            <li><a href="admin-gestion.html">Gestion générale</a></li>
+          </ul>
+        </li>
+        <li id="user-info" style="display:none; font-weight:700; font-size:12px;"></li>
+        <li><a href="identification.html" class="nav-cta" id="login-link">Se connecter</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>Espace Pédagogique</h1>
+    <p>Accédez aux supports de cours et travaux dirigés.</p>
+  </div>
+</section>
+
+<!-- BOUTONS ADMINISTRATEUR (Nouveau) -->
+<div id="admin-quick-nav" class="admin-quick-nav">
+    <a href="admin-ine.html" class="admin-btn btn-ine">📊 ACCÉDER À LA GESTION DES INE</a>
+    <a href="admin-gestion.html" class="admin-btn btn-gest">⚙️ CONFIGURATION DU SITE</a>
+</div>
+
+<div class="search-container">
+  <input type="text" id="search-bar" placeholder="Rechercher une matière (Maths, Arabe...)...">
+</div>
+
+<main class="wrap">
+  <h2 class="cycle-header">Cycle Moyen (Collège)</h2>
+  <div id="college-container"></div>
+  
+  <h2 class="cycle-header">Cycle Secondaire (Lycée)</h2>
+  <div id="lycee-container"></div>
+</main>
+
+<footer>
+  <div>© 2026 Lycée Franco Arabe de Keur Madiabel</div>
+</footer>
+
+<script type="module">
+  // REMARQUE : Importation des modules Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // REMARQUE : Définition des matières par défaut
+  const MATS_COL = ["Mathématiques", "Français", "Anglais", "Arabe", "SVT", "Histoire-Géo", "EPS", "Religieux"];
+  
+  // REMARQUE : Structure des classes (Correction des Premières incluse)
+  const structure = [
+    { area: "college-container", levels: [
+        { id: "6e", name: "Classe de Sixième", mats: MATS_COL },
+        { id: "5e", name: "Classe de Cinquième", mats: MATS_COL },
+        { id: "4e", name: "Classe de Quatrième", mats: [...MATS_COL, "Physique-Chimie"] },
+        { id: "3e", name: "Classe de Troisième", mats: [...MATS_COL, "Physique-Chimie"] }
+    ]},
+    { area: "lycee-container", levels: [
+        { id: "2s2a", name: "Seconde S2A", mats: ["Mathématiques", "PC", "SVT", "Français", "Anglais", "HG"] },
+        { id: "2la", name: "Seconde LA", mats: ["Mathématiques", "Français", "Anglais", "Arabe", "HG"] },
+        { id: "1s2a", name: "Première S2A", mats: ["Mathématiques", "PC", "SVT", "Français", "Anglais", "HG"] },
+        { id: "1la", name: "Première LA", mats: ["Français", "Anglais", "HG", "Philosophie", "Arabe"] },
+        { id: "ts2a", name: "Terminale S2A", mats: ["Mathématiques", "PC", "SVT", "Philosophie", "Français", "HG"] },
+        { id: "tla", name: "Terminale LA", mats: ["Philosophie", "Français", "Anglais", "Arabe", "HG", "Mathématiques"] }
+    ]}
+  ];
+
+  // Construction de l'interface HTML
+  function build() {
+    structure.forEach(cycle => {
+        let html = '';
+        cycle.levels.forEach(l => {
+            html += `<details class="level" id="lvl-${l.id}"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
+            l.mats.forEach(m => {
+                const matId = m.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                html += `<details class="subject"><summary>${m} <span>▼</span></summary><div class="subject-grid">
+                    <div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="c-${l.id}-${matId}"></ul><button class="add-btn" onclick="window.up('c-${l.id}-${matId}')">+ Ajouter</button></div>
+                    <div class="doc-col"><h5>TD</h5><ul class="doc-list" id="t-${l.id}-${matId}"></ul><button class="add-btn" onclick="window.up('t-${l.id}-${matId}')">+ Ajouter</button></div>
+                </div></details>`;
+            });
+            html += `</div></details>`;
+        });
+        document.getElementById(cycle.area).innerHTML = html;
+    });
+  }
+  build();
+
+  let userProfile = null;
+
+  // REMARQUE : Gestion des accès par rôle (Admin vs Prof)
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      userProfile = snap.data();
+      
+      const info = document.getElementById('user-info');
+      info.style.display = "block";
+      info.textContent = `👤 ${userProfile.prenom}`;
+
+      // CAS 1 : L'ADMINISTRATEUR
+      if (userProfile.role === 'administrateur') {
+          document.getElementById('admin-quick-nav').style.display = 'flex';
+          document.getElementById('admin-dropdown').style.display = 'block';
+          // L'admin voit TOUTES les classes, rien à cacher.
+      } 
+      // CAS 2 : LE PROFESSEUR
+      else if (userProfile.role === 'professeur') {
+          document.getElementById('admin-dropdown').style.display = 'block';
+          
+          // Filtrage des classes : On cache celles qui ne sont pas dans userProfile.classes
+          const mesClasses = userProfile.classes || [];
+          document.querySelectorAll('.level').forEach(el => {
+              const classId = el.id.replace('lvl-', '');
+              if (!mesClasses.includes(classId)) {
+                  el.style.display = 'none';
+              }
+          });
+      }
+
+      document.getElementById('login-link').textContent = "Déconnexion";
+      document.getElementById('login-link').onclick = () => signOut(auth).then(() => window.location.reload());
+    }
+    initSync(); // Lance la synchro des documents
+  });
+
+  // REMARQUE : Synchro Firestore des documents
+  function initSync() {
+    document.querySelectorAll('.doc-list').forEach(ul => {
+      const id = ul.id; // ex: c-1s2a-mathématiques
+      const slug = id.replace(/^c-|^t-/, ''); // 1s2a-mathématiques
+      const type = id.startsWith('c-') ? 'cours' : 'td';
+      const btn = ul.nextElementSibling;
+      const matName = ul.closest('.subject').querySelector('summary').textContent.toLowerCase();
+
+      // Vérification des droits d'ajout (Admin peut tout, Prof seulement sa discipline)
+      const canEdit = (userProfile?.role === 'administrateur') || 
+                      (userProfile?.role === 'professeur' && userProfile.disciplines?.some(d => matName.includes(d.toLowerCase())));
+
+      if (canEdit) btn.style.display = "block";
+
+      onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
+        ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;background:none;">Vide</li>' : '';
+        snap.forEach(dDoc => {
+          const d = dDoc.data();
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="${d.url}" target="_blank">📄 ${d.titre}</a>`;
+          
+          if (canEdit) {
+            const del = document.createElement('button');
+            del.innerHTML = '✕'; del.className = 'delete-btn';
+            del.onclick = () => confirm('Supprimer ce document ?') && deleteDoc(doc(db, 'ressources', slug, type, dDoc.id));
+            li.appendChild(del);
+          }
+          ul.appendChild(li);
+        });
+      });
+    });
+  }
+
+  // REMARQUE : Upload vers Cloudinary
+  window.up = async (id) => {
+    const t = prompt('Titre du document :');
+    if (!t) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = async () => {
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      fd.append('upload_preset', "lfakm_ressources");
+      try {
+          const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+          const data = await res.json();
+          await addDoc(collection(db, 'ressources', id.replace(/^c-|^t-/, ''), id.startsWith('c-') ? 'cours' : 'td'), {
+            titre: t, url: data.secure_url, date: serverTimestamp()
+          });
+      } catch (e) { alert("Erreur lors de l'envoi."); }
+    };
+    input.click();
+  };
+
+  // Gestion Dropdown Admin
+  document.addEventListener('click', (e) => {
+      if (e.target.closest('.dropdown-toggle')) {
+          e.preventDefault();
+          document.getElementById('admin-dropdown').classList.toggle('open');
+      } else {
+          document.getElementById('admin-dropdown').classList.remove('open');
+      }
+  });
+
+  // Recherche dynamique
+  document.getElementById('search-bar').oninput = (e) => {
+    const t = e.target.value.toLowerCase();
+    document.querySelectorAll('.subject').forEach(s => {
+        s.style.display = s.innerText.toLowerCase().includes(t) ? 'block' : 'none';
+    });
+  };
+</script>
+</body>
+</html>
