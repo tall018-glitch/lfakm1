@@ -132,7 +132,7 @@
     structure.forEach(c => {
         html += `<h2 class="cycle-title">${c.id.includes('e') ? 'Collège' : 'Lycée'}</h2>`;
         const l = c;
-        html += `<details class="level"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
+        html += `<details class="level" data-level="${l.id}"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
         l.mats.forEach(m => {
           const slugMat = m.toLowerCase().replace(/[^a-z0-9]/g, '');
           html += `<details class="subject"><summary>${m} <span>▼</span></summary><div class="subject-grid"><div class="doc-col"><h5>Cours</h5><ul class="doc-list" id="cours-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('cours-${l.id}-${slugMat}')">+ Ajouter</button></div><div class="doc-col"><h5>TD</h5><ul class="doc-list" id="td-${l.id}-${slugMat}"></ul><button class="add-btn" onclick="window.up('td-${l.id}-${slugMat}')">+ Ajouter</button></div></div></details>`;
@@ -154,8 +154,23 @@
       document.getElementById('auth-link').textContent = "Déconnexion";
       document.getElementById('auth-link').onclick = () => signOut(auth).then(() => window.location.reload());
     }
+    applyLevelVisibility();
     syncDocs();
   });
+
+  function applyLevelVisibility() {
+    const role = profile?.role;
+    document.querySelectorAll('details.level').forEach(levelEl => {
+      const lvlId = levelEl.dataset.level;
+      let visible = true; // admin et visiteurs non connectés voient tout
+      if (role === 'professeur') {
+        visible = (profile.assignedClasses || []).includes(lvlId);
+      } else if (role === 'eleve') {
+        visible = profile.niveau === lvlId;
+      }
+      levelEl.style.display = visible ? '' : 'none';
+    });
+  }
 
   function syncDocs() {
     const role = profile?.role;
