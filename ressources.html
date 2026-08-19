@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ressources — LFAKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #1B2A4A; --ink-deep: #10192E; --paper: #F7F5F0; --brass: #A8853F; --slate: #5B6472; --text: #1A1A1A; --line: rgba(27,42,74,0.14); --serif: 'Source Serif 4', Georgia, serif; --sans: 'Inter', sans-serif; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--sans); color: var(--text); background: #f9f7f2; line-height:1.55; }
+  .wrap { max-width:1200px; margin:0 auto; padding:0 24px; }
+  header { background: #fff; border-bottom: 1px solid var(--line); height: 80px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
+  .nav-row { display:flex; align-items:center; justify-content:space-between; width: 100%; }
+  .brand-name { font-family:var(--serif); font-weight:700; font-size:18px; color:var(--ink); text-decoration:none; }
+  .nav-cta { background: var(--ink); color:#fff; padding:8px 15px; border-radius:5px; font-size:12px; border:none; cursor:pointer; text-decoration: none;}
+  .page-hero { background: var(--ink-deep); color: #fff; padding: 40px 0; text-align: center; }
+  .page-hero h1 { font-family: var(--serif); font-size: 32px; margin-bottom: 10px; }
+  #welcome-msg { color: #C7CBD6; font-size: 15px; }
+  .cycle-title { font-family: var(--serif); color: var(--ink); margin: 40px 0 15px; border-bottom: 2px solid var(--brass); display: inline-block; padding-bottom: 5px; }
+  details.level { background: #fff; border: 1px solid var(--line); margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  details.level summary { padding: 20px; cursor: pointer; font-family: var(--serif); font-size: 20px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+  .level-content { padding: 10px 20px 25px; background: #fafafa; border-top: 1px solid var(--line); }
+  details.subject { background: #fff; border: 1px solid var(--line); margin-top: 12px; border-radius: 6px; }
+  details.subject summary { padding: 12px; font-weight: 600; font-size: 16px; list-style: none; display: flex; justify-content: space-between; color: var(--ink); }
+  .subject-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 15px; }
+  .doc-col { background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #eee; }
+  .doc-col h5 { font-size: 12px; text-transform: uppercase; color: var(--brass); margin-bottom: 10px; border-bottom: 1px solid var(--paper); padding-bottom: 5px; }
+  .doc-list { list-style: none; }
+  .doc-list li { background: #f1ece1; padding: 10px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #e0ddd5; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .add-btn { margin-top: 10px; font-size: 11px; font-weight: 700; color: #fff; background: var(--ink); border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; }
+  .submit-btn { background: #2E7D4F; color: #fff; border: none; padding: 5px 8px; border-radius: 3px; font-size: 10px; cursor: pointer; }
+  .delete-btn { color: #d9534f; cursor: pointer; border: none; background: none; font-weight: bold; font-size: 18px; }
+  #loader-msg { color: #FFD700; font-weight: bold; display: none; margin-top: 10px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="wrap nav-row">
+        <a href="index.html" class="brand-name">LFAKM - Portail Pédagogique</a>
+        <nav>
+            <a href="admin-gestion.html" id="admin-link" style="display:none; margin-right:15px; color:var(--brass); font-weight:bold; text-decoration:none;">Administration</a>
+            <a href="#" id="auth-link" class="nav-cta">Déconnexion</a>
+        </nav>
+    </div>
+</header>
+
+<section class="page-hero">
+    <div class="wrap">
+        <h1>Mes Classes & Ressources</h1>
+        <p id="welcome-msg">Identification...</p>
+        <div id="loader-msg">Envoi du fichier vers le serveur... patientez.</div>
+    </div>
+</section>
+
+<main class="wrap" id="main-content"></main>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // STRUCTURE DE RÉFÉRENCE
+    const classes = [
+        { id: "sixieme", name: "Sixième", mats: ["Français", "Anglais", "Mathématiques", "SVT"] },
+        { id: "quatrieme", name: "Quatrième", mats: ["Mathématiques", "Sciences Physiques"] },
+        { id: "troisieme", name: "Troisième", mats: ["Mathématiques", "Sciences Physiques"] },
+        { id: "seconde-serie-s2a", name: "Seconde S2A", mats: ["Mathématiques", "Sciences Physiques", "SVT", "Français"] },
+        { id: "premiere-serie-s2a", name: "Première S2A", mats: ["Mathématiques", "Sciences Physiques", "SVT", "Français"] },
+        { id: "terminale-serie-s2a", name: "Terminale S2A", mats: ["Mathématiques", "Sciences Physiques", "SVT", "Philosophie"] }
+    ];
+
+    function slug(t) { return t.toLowerCase().trim().replace(/ /g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+            const p = snap.data();
+            const main = document.getElementById('main-content');
+
+            if (p.role !== 'eleve' && p.compteActive !== true) {
+                main.innerHTML = `<div class="alert-box"><h2>Accès en attente</h2><p>Votre compte doit être validé par le Proviseur.</p></div>`;
+                return;
+            }
+
+            if(p.role === 'admin') document.getElementById('admin-link').style.display = 'inline-block';
+            document.getElementById('welcome-msg').textContent = `Session : ${p.prenom} ${p.nom} (${p.role.toUpperCase()})`;
+            
+            document.getElementById('auth-link').onclick = () => signOut(auth).then(() => location.reload());
+
+            // Logique de rendu
+            renderUI(p);
+        } else { window.location.href = "identification.html"; }
+    });
+
+    function renderUI(profil) {
+        const main = document.getElementById('main-content');
+        const role = profil.role;
+        const myMats = profil.disciplines || [];
+        main.innerHTML = '';
+
+        classes.forEach(cls => {
+            // Un élève ne voit que sa classe
+            if (role === 'eleve' && cls.id !== profil.niveau) return;
+            
+            let subjectHTML = '';
+            cls.mats.forEach(mName => {
+                const mId = slug(mName);
+                const isMyMat = myMats.includes(mId);
+
+                // LOGIQUE DE FILTRAGE : 
+                // Un prof ne voit QUE ses matières. 
+                // Un Admin voit TOUT mais ne peut ajouter que dans SES matières.
+                if (role === 'professeur' && !isMyMat) return;
+
+                subjectHTML += `
+                <details class="subject">
+                    <summary>${mName} <span>▼</span></summary>
+                    <div class="subject-grid">
+                        <div class="doc-col">
+                            <h5>📚 Cours</h5>
+                            <ul class="doc-list" id="l-${cls.id}-${mId}-cours"></ul>
+                            ${isMyMat ? `<button class="add-btn" onclick="window.processUpload('${cls.id}','${mId}','cours')">＋ Publier</button>` : ''}
+                        </div>
+                        <div class="doc-col">
+                            <h5>📝 TD</h5>
+                            <ul class="doc-list" id="l-${cls.id}-${mId}-td"></ul>
+                            ${isMyMat ? `<button class="add-btn" onclick="window.processUpload('${cls.id}','${mId}','td')">＋ Publier</button>` : ''}
+                        </div>
+                        <div class="doc-col">
+                            <h5>🎯 Devoirs</h5>
+                            <ul class="doc-list" id="l-${cls.id}-${mId}-dev"></ul>
+                            ${isMyMat ? `<button class="add-btn" style="background:#A8853F" onclick="window.processUpload('${cls.id}','${mId}','dev')">＋ Donner Devoir</button>` : ''}
+                        </div>
+                    </div>
+                </details>`;
+            });
+
+            if (subjectHTML !== '') {
+                const div = document.createElement('div');
+                div.innerHTML = `<h2 class="cycle-title">${cls.name}</h2><div class="level-content">${subjectHTML}</div>`;
+                main.appendChild(div);
+                cls.mats.forEach(mName => {
+                    const mId = slug(mName);
+                    // On écoute la liste si on est visiteur/élève OU si c'est notre matière
+                    const isMyMat = myMats.includes(mId);
+                    if (role === 'professeur' && !isMyMat) return;
+                    
+                    setupList(cls.id, mId, 'cours', profil, isMyMat);
+                    setupList(cls.id, mId, 'td', profil, isMyMat);
+                    setupList(cls.id, mId, 'dev', profil, isMyMat);
+                });
+            }
+        });
+    }
+
+    function setupList(lvl, mat, type, profil, canDelete) {
+        const ul = document.getElementById(`l-${lvl}-${mat}-${type}`);
+        if(!ul) return;
+        onSnapshot(query(collection(db, "ressources", `${lvl}-${mat}`, type), orderBy("date", "desc")), (snap) => {
+            ul.innerHTML = snap.empty ? '<li style="background:none;border:none;color:grey">Vide</li>' : '';
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                const li = document.createElement('li');
+                li.innerHTML = `<span>📄 ${d.titre}</span>`;
+                
+                const div = document.createElement('div');
+                if (type === 'dev' && profil.role === 'eleve') {
+                    const b = document.createElement('button'); b.className = 'submit-btn'; b.textContent = 'Rendre copie';
+                    b.onclick = () => window.rendu(lvl, mat, d.titre, profil);
+                    div.appendChild(b);
+                }
+                if (canDelete) {
+                    const del = document.createElement('button'); del.className = 'delete-btn'; del.textContent = '×';
+                    del.onclick = () => { if(confirm('Supprimer ?')) deleteDoc
