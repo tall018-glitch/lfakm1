@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ressources Pédagogiques — LFAKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B2A4A; --ink-deep: #0D1526; --paper: #F9F8F4;
+    --brass: #A8853F; --brass-light: #C5A059; --text: #2D3436; 
+    --line: rgba(27,42,74,0.1); --shadow-md: 0 10px 25px rgba(0,0,0,0.08);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--paper); line-height:1.6; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* NAVIGATION */
+  header { background: #fff; border-bottom: 1px solid var(--line); height: 90px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+  .brand { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--ink); }
+  .brand-mark { background: var(--ink); color: #fff; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-weight: 800; border-radius: 8px; font-family: 'Source Serif 4'; }
+  .brand-name { font-family: 'Source Serif 4'; font-weight: 700; font-size: 19px; line-height: 1.1; }
+  nav ul { display: flex; list-style: none; gap: 20px; align-items: center; }
+  nav a { text-decoration: none; color: var(--ink); font-weight: 600; font-size: 14px; }
+  .nav-cta { background: #d9534f; color: #fff !important; padding: 10px 18px; border-radius: 6px; }
+
+  /* HERO & SEARCH */
+  .hero { background: var(--ink-deep); color: #fff; padding: 60px 0 80px; text-align: center; }
+  .hero h1 { font-family: 'Source Serif 4'; font-size: 36px; margin-bottom: 10px; }
+  .search-area { margin-top: 30px; }
+  #search-bar { width: 100%; max-width: 600px; padding: 18px 25px; border-radius: 50px; border: none; box-shadow: var(--shadow-md); font-size: 16px; outline: none; }
+
+  /* TABLEAU DE BORD ADMIN (Le raccourci demandé) */
+  #admin-dashboard { 
+    display: none; /* Caché par défaut, activé par le JS */
+    background: #fff; padding: 25px; border-radius: 12px; 
+    margin: -30px auto 40px; border: 1px solid var(--line); 
+    box-shadow: var(--shadow-md); position: relative; z-index: 20; 
+  }
+  .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .dash-card { 
+    display: flex; align-items: center; gap: 15px; padding: 15px; 
+    text-decoration: none; border-radius: 10px; color: #fff; transition: 0.3s; 
+  }
+  .dash-card.ine { background: var(--brass); }
+  .dash-card.gest { background: var(--ink-deep); }
+  .dash-card:hover { transform: translateY(-3px); opacity: 0.9; }
+  .dash-icon { font-size: 24px; background: rgba(255,255,255,0.2); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+
+  /* CONTENU DES CLASSES */
+  .cycle-title { font-family: 'Source Serif 4'; font-size: 24px; color: var(--ink); margin: 40px 0 20px; border-left: 5px solid var(--brass); padding-left: 15px; }
+  details.level { background: #fff; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--line); }
+  summary { padding: 20px; cursor: pointer; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .level-content { padding: 10px 20px 20px; background: #fafafa; border-top: 1px solid var(--line); }
+
+  .subject-box { background: #fff; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px; overflow: hidden; }
+  .subject-summary { padding: 12px 15px; background: #eee; font-weight: 600; color: var(--ink); font-size: 14px; }
+  .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+  
+  .doc-col h5 { font-size: 11px; text-transform: uppercase; color: var(--brass); margin-bottom: 8px; }
+  .doc-list { list-style: none; font-size: 13px; }
+  .doc-list li { display: flex; justify-content: space-between; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 4px; margin-bottom: 5px; }
+  .doc-list a { text-decoration: none; color: var(--text); }
+  
+  .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--brass); color: var(--brass); background: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 700; margin-top: 8px; display: none; }
+  .delete-btn { color: #d9534f; cursor: pointer; border: none; background: none; font-weight: bold; }
+
+  footer { background: var(--ink-deep); color: #fff; padding: 40px 0; text-align: center; margin-top: 60px; font-size: 13px; }
+
+  @media (max-width: 768px) { .dashboard-grid, .subject-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-row wrap">
+    <a href="index.html" class="brand">
+      <div class="brand-mark">LFA</div>
+      <div class="brand-name">Lycée Franco Arabe<br><span style="font-size:13px; color:var(--brass)">Keur Madiabel</span></div>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="ressources.html" style="color:var(--brass)">Ressources</a></li>
+        <li id="user-info" style="font-weight:700; font-size:13px; color:var(--brass)"></li>
+        <li><a href="#" class="nav-cta" id="login-link">Se déconnecter</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Espace Pédagogique</h1>
+    <p>Supports de cours, TD et documents officiels.</p>
+    <div class="search-area">
+      <input type="text" id="search-bar" placeholder="Rechercher une matière (ex: LLA, Civilisation, Maths)...">
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <!-- RACCOURCIS ADMIN -->
+  <div id="admin-dashboard">
+    <h3 style="margin-bottom:15px; font-size:14px; color:var(--slate)">TABLEAU DE BORD ADMINISTRATEUR</h3>
+    <div class="dashboard-grid">
+      <a href="admin-ine.html" class="dash-card ine">
+        <div class="dash-icon">📥</div>
+        <div><strong>Importation des INE</strong><br><small>Mettre à jour les élèves</small></div>
+      </a>
+      <a href="admin-gestion.html" class="dash-card gest">
+        <div class="dash-icon">⚙️</div>
+        <div><strong>Gestion du Site</strong><br><small>News et paramètres</small></div>
+      </a>
+    </div>
+  </div>
+
+  <main>
+    <h2 class="cycle-title">Cycle Moyen (Collège)</h2>
+    <div id="college-container"></div>
+    
+    <h2 class="cycle-title">Cycle Secondaire (Lycée)</h2>
+    <div id="lycee-container"></div>
+  </main>
+</div>
+
+<footer><p>© 2026 Lycée Franco Arabe de Keur Madiabel</p></footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+    authDomain: "lfakm-87dec.firebaseapp.com",
+    projectId: "lfakm-87dec",
+    storageBucket: "lfakm-87dec.firebasestorage.app",
+    messagingSenderId: "739517262614",
+    appId: "1:739517262614:web:14abd3538427960c527e37"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const MATS_COL = ["Mathématiques", "Français", "Anglais", "Arabe", "SVT", "HG", "EPS", "Religieux"];
+  
+  // MISE À JOUR : Ajout de LLA et CAI dans les séries S2A et LA
+  const MATS_LYCEE_S2A = ["Mathématiques", "PC", "SVT", "Français", "Anglais", "HG", "Langue et Littérature Arabe (LLA)", "Civilisation Arabo-islamique (CAI)"];
+  const MATS_LYCEE_LA = ["Langue et Littérature Arabe (LLA)", "Civilisation Arabo-islamique (CAI)", "Français", "Anglais", "HG", "Philosophie", "Mathématiques"];
+
+  const structure = [
+    { area: "college-container", levels: [
+        { id: "6e", name: "Classe de Sixième", mats: MATS_COL },
+        { id: "5e", name: "Classe de Cinquième", mats: MATS_COL },
+        { id: "4e", name: "Classe de Quatrième", mats: [...MATS_COL, "PC"] },
+        { id: "3e", name: "Classe de Troisième", mats: [...MATS_COL, "PC"] }
+    ]},
+    { area: "lycee-container", levels: [
+        { id: "2s2a", name: "Seconde S2A", mats: MATS_LYCEE_S2A },
+        { id: "2la", name: "Seconde LA", mats: MATS_LYCEE_LA },
+        { id: "1s2a", name: "Première S2A", mats: MATS_LYCEE_S2A },
+        { id: "1la", name: "Première LA", mats: MATS_LYCEE_LA },
+        { id: "ts2a", name: "Terminale S2A", mats: [...MATS_LYCEE_S2A, "Philosophie"] },
+        { id: "tla", name: "Terminale LA", mats: MATS_LYCEE_LA }
+    ]}
+  ];
+
+  function build() {
+    structure.forEach(cycle => {
+        let html = '';
+        cycle.levels.forEach(l => {
+            html += `<details class="level" id="lvl-${l.id}"><summary>${l.name} <span>+</span></summary><div class="level-content">`;
+            l.mats.forEach(m => {
+                const matId = m.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                html += `<div class="subject-box"><div class="subject-summary">${m}</div><div class="subject-grid">
+                    <div class="doc-col"><h5>📚 Cours</h5><ul class="doc-list" id="c-${l.id}-${matId}"></ul><button class="add-btn" onclick="window.up('c-${l.id}-${matId}')">+ Ajouter</button></div>
+                    <div class="doc-col"><h5>📝 TD</h5><ul class="doc-list" id="t-${l.id}-${matId}"></ul><button class="add-btn" onclick="window.up('t-${l.id}-${matId}')">+ Ajouter</button></div>
+                </div></div>`;
+            });
+            html += `</div></details>`;
+        });
+        document.getElementById(cycle.area).innerHTML = html;
+    });
+  }
+  build();
+
+  let userProfile = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      userProfile = snap.data();
+      
+      document.getElementById('user-info').textContent = `👤 ${userProfile.prenom} ${userProfile.nom}`;
+
+      // AFFICHAGE DES BOUTONS ADMIN
+      if (userProfile.role === 'administrateur') {
+          document.getElementById('admin-dashboard').style.display = 'block';
+      } 
+      
+      // FILTRAGE PROFESSEUR
+      if (userProfile.role === 'professeur') {
+          const mesClasses = userProfile.classes || [];
+          document.querySelectorAll('.level').forEach(el => {
+              if (!mesClasses.includes(el.id.replace('lvl-', ''))) el.style.display = 'none';
+          });
+      }
+
+      document.getElementById('login-link').onclick = () => signOut(auth).then(() => window.location.reload());
+    }
+    initSync();
+  });
+
+  function initSync() {
+    document.querySelectorAll('.doc-list').forEach(ul => {
+      const id = ul.id, slug = id.replace(/^c-|^t-/, ''), type = id.startsWith('c-') ? 'cours' : 'td';
+      const btn = ul.nextElementSibling;
+      const matName = ul.closest('.subject-box').querySelector('.subject-summary').textContent.toLowerCase();
+
+      const canEdit = (userProfile?.role === 'administrateur') || 
+                      (userProfile?.role === 'professeur' && userProfile.disciplines?.some(d => matName.includes(d.toLowerCase())));
+
+      if (canEdit) btn.style.display = "block";
+
+      onSnapshot(query(collection(db, 'ressources', slug, type), orderBy('date', 'desc')), (snap) => {
+        ul.innerHTML = snap.empty ? '<li style="color:gray;border:none;font-style:italic">Vide</li>' : '';
+        snap.forEach(dDoc => {
+          const d = dDoc.data();
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="${d.url}" target="_blank">📄 ${d.titre}</a>`;
+          if (canEdit) {
+            const del = document.createElement('button'); del.innerHTML = '✕'; del.className = 'delete-btn';
+            del.onclick = () => confirm('Supprimer ?') && deleteDoc(doc(db, 'ressources', slug, type, dDoc.id));
+            li.appendChild(del);
+          }
+          ul.appendChild(li);
+        });
+      });
+    });
+  }
+
+  window.up = async (id) => {
+    const t = prompt('Titre du document :');
+    if (!t) return;
+    const input = document.createElement('input'); input.type = 'file';
+    input.onchange = async () => {
+      const fd = new FormData(); fd.append('file', input.files[0]); fd.append('upload_preset', "lfakm_ressources");
+      try {
+          const res = await fetch('https://api.cloudinary.com/v1_1/kgjydhyi/auto/upload', { method: 'POST', body: fd });
+          const data = await res.json();
+          await addDoc(collection(db, 'ressources', id.replace(/^c-|^t-/, ''), id.startsWith('c-') ? 'cours' : 'td'), {
+            titre: t, url: data.secure_url, date: serverTimestamp()
+          });
+      } catch (e) { alert("Erreur upload."); }
+    };
+    input.click();
+  };
+
+  document.getElementById('search-bar').oninput = (e) => {
+    const t = e.target.value.toLowerCase();
+    document.querySelectorAll('.level, .subject-box').forEach(el => {
+        el.style.display = el.innerText.toLowerCase().includes(t) ? 'block' : 'none';
+    });
+  };
+</script>
+</body>
+</html>
