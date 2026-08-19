@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Administration — LFAKM</title>
+    <style>
+        :root { --ink: #1B2A4A; --brass: #A8853F; --paper: #F7F5F0; }
+        body { font-family: sans-serif; background: var(--paper); padding: 20px; font-size: 14px; }
+        .admin-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 1100px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
+        th { background: #fafafa; color: var(--ink); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+        .btn { border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .btn-activate { background: var(--ink); color: white; }
+        .btn-validate { background: var(--brass); color: white; }
+        .btn-delete { background: #c62828; color: white; }
+        .status-pending { color: red; font-weight: bold; }
+        .status-ok { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-card">
+        <h1>Gestion Administrative LFAKM</h1>
+        <p id="access-info">Vérification de vos droits d'accès...</p>
+        
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Rôle</th>
+                    <th>Classe / Matières</th>
+                    <th>Accès Système</th>
+                    <th>Scolarité (Janv)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsr_yfl_T5CrxfgD7Xe5bIw3zN6rIdag",
+        authDomain: "lfakm-87dec.firebaseapp.com",
+        projectId: "lfakm-87dec",
+        storageBucket: "lfakm-87dec.firebasestorage.app",
+        messagingSenderId: "739517262614",
+        appId: "1:739517262614:web:14abd3538427960c527e37"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) return window.location.href = "identification.html";
+        const snap = await getDoc(doc(db, "utilisateurs", user.uid));
+        const current = snap.data();
+
+        if (current.role === 'admin' || current.role === 'intendant') {
+            document.getElementById('access-info').textContent = `Connecté : ${current.prenom} (Rôle: ${current.role})`;
+            loadUsers(current.role);
+        } else {
+            document.body.innerHTML = "<h1 style='text-align:center;margin-top:100px;'>Accès Réservé à l'Administration</h1>";
+        }
+    });
+
+    async function loadUsers(myRole) {
+        const snap = await getDocs(collection(db, "utilisateurs"));
+        const tbody = document.querySelector("#users-table tbody");
+        tbody.innerHTML = '';
+
+        snap.forEach((userDoc) => {
+            const u = userDoc.data();
+            const id = userDoc.id;
+            const tr = document.createElement('tr');
+
+            const isStaff = u.role !== 'eleve';
+            const accessStatus = isStaff ? (u.compteActive ? '<span class="status-ok">ACTIF</span>' : '<span class="status-pending">À ACTIVER</span>') : 'Auto (INE)';
+            const scolariteStatus = u.role === 'eleve' ? (u.valideParIntendant ? '<span class="status-ok">PAYÉ</span>' : '<span class="status-pending">ATTENTE</span>') : '-';
+
+            tr.innerHTML = `
+                <td>${u.prenom} ${u.nom}<br><small>${u.email}</small></td>
+                <td>${u.role.toUpperCase()}</td>
+                <td>${u.role === 'eleve' ? u.niveau : u.disciplines?.join(', ')}</td>
+                <td>${accessStatus}</td>
+                <td>${scolariteStatus}</td>
+                <td id="actions-${id}"></td>
+            `;
+            tbody.appendChild(tr);
+
+            const cell = document.getElementById(`actions-${id}`);
+
+            // ACTION PROVISEUR : Activer compte Personnel
+            if (myRole === 'admin' && isStaff && !u.compteActive) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-activate'; btn.textContent = 'Activer';
+                btn.onclick = async () => { await updateDoc(doc(db, "utilisateurs", id), {compteActive: true}); location.reload(); };
+                cell.appendChild(btn);
+            }
+
+            // ACTION INTENDANT : Valider Scolarité Élève
+            if (myRole === 'intendant' && u.role === 'eleve' && !u.valideParIntendant) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-validate'; btn.textContent = 'Valider Paye';
+                btn.onclick = async () => { await updateDoc(doc(db, "utilisateurs", id), {valideParIntendant: true}); location.reload(); };
+                cell.appendChild(btn);
+            }
+
+            // ACTION ADMIN : Supprimer n'importe qui
+            if (myRole === 'admin') {
+                const del = document.createElement('button');
+                del.className = 'btn btn-delete'; del.style.marginLeft = "5px"; del.textContent = 'Supprimer';
+                del.onclick = async () => { if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "utilisateurs", id)); location.reload(); }};
+                cell.appendChild(del);
+            }
+        });
+    }
+</script>
+</body>
+</html>
