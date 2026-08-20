@@ -104,12 +104,6 @@
 </head>
 <body>
 
-<!-- ========================================================
-     NOTE : ce formulaire est une maquette visuelle. Tant qu'aucune
-     base de données n'est connectée, il ne vérifie aucun identifiant.
-     Le bouton "Se connecter" ne fait rien pour l'instant.
-======================================================== -->
-
 <header>
   <div class="wrap nav-row">
     <div class="brand">
@@ -149,8 +143,9 @@
       </div>
       <div class="login-actions">
         <label class="remember"><input type="checkbox"> Se souvenir de moi</label>
-        <a href="#" class="forgot">Mot de passe oublié ?</a>
+        <a href="#" id="forgot-link" class="forgot">Mot de passe oublié ?</a>
       </div>
+      <div id="reset-msg" style="display:none; font-size:13px; margin-bottom:16px;"></div>
       <div id="login-error" style="display:none; color:#B3402A; font-size:13px; margin-bottom:16px;"></div>
       <button type="submit" class="btn-submit">Se connecter</button>
     </form>
@@ -167,7 +162,7 @@
 ======================================================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -200,6 +195,34 @@
     } catch (err) {
       errorBox.textContent = "Identifiant ou mot de passe incorrect.";
       errorBox.style.display = 'block';
+    }
+  });
+
+  const identInput = document.getElementById('identifiant');
+  const resetMsg = document.getElementById('reset-msg');
+
+  document.getElementById('forgot-link').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = identInput.value.trim();
+    resetMsg.style.display = 'block';
+
+    if (!email) {
+      resetMsg.style.color = '#B3402A';
+      resetMsg.textContent = "Saisissez d'abord votre e-mail ci-dessus, puis cliquez à nouveau sur ce lien.";
+      identInput.focus();
+      return;
+    }
+
+    resetMsg.style.color = 'var(--slate)';
+    resetMsg.textContent = "Envoi en cours...";
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      resetMsg.style.color = '#2E7D32';
+      resetMsg.textContent = `📧 Un e-mail de réinitialisation a été envoyé à ${email}. Pensez à vérifier vos spams.`;
+    } catch (err) {
+      resetMsg.style.color = '#B3402A';
+      resetMsg.textContent = "Impossible d'envoyer l'e-mail. Vérifiez que l'adresse est correcte et correspond bien à votre compte.";
     }
   });
 </script>
